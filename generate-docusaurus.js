@@ -75,11 +75,19 @@ const SIDEBARS_FILE_PATH = path.join(DOCUSAURUS_PROJECT_PATH, 'sidebars.js');
                     markdownContent = `Content could not be converted. [View Original](${article.article_link})`;
                 }
 
-                // ⭐ DOCUSaurus YAML Frontmatter
+                // ⭐ THE FIX: Filter out empty tags before creating the frontmatter
+                const formattedTags = (article.article_tag || '')
+                  .split(',')
+                  .map(tag => tag.trim())        // Trim whitespace first
+                  .filter(tag => tag)             // This removes any empty strings
+                  .map(tag => `"${tag}"`)        // Wrap the valid tags in quotes
+                  .join(', ');
+
+                // ⭐ DOCUSaurus YAML Frontmatter (Now using the cleaned tags)
                 const fileHeader = `---
 id: ${article._id}
 title: "${(article.article_title || 'Untitled').replace(/"/g, '\\"')}"
-tags: [${(article.article_tag || '').split(',').map(t => `"${t.trim()}"`).join(', ')}]
+tags: [${formattedTags}]
 custom_edit_url: ${article.article_link}
 ---
 import { ArticleInfo } from '@site/src/components/ArticleInfo';
